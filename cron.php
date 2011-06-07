@@ -52,6 +52,8 @@ class Cron
   public $output;
 
   public $start;
+  
+  private $refTypeIDList = array(33, 34, 85, 99);
 
   private function dbConnect() {
     $this->db = NewADOConnection($this->conf->Dsn);
@@ -119,7 +121,7 @@ class Cron
     $journalItems = array();
     foreach($xml->result->rowset->row as $row)
     {
-      $refTypeIDList = array(33, 34, 85);
+      $refTypeIDList = $this->refTypeIDList;
       if(!in_array(intval($row['refTypeID']), $refTypeIDList))
         continue;
 
@@ -193,7 +195,7 @@ class Cron
 
         $this->output .= "$currentRefID\n";
 
-        $refTypeIDList = array(33, 34, 85);
+        $refTypeIDList = $this->refTypeIDList;
         if(!in_array(intval($row['refTypeID']), $refTypeIDList))
           continue;
 
