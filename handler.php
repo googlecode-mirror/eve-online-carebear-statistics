@@ -261,15 +261,13 @@ class Handler
       $sql = "SELECT
 j3.ownerName2,
 j3.ownerID2,
-j3.corpTax,
 Sum(j3.amount) AS amount
 FROM
 (
 	SELECT
 	j1.ownerName2 AS ownerName2,
 	j1.ownerID2,
-	j1.corpTax,
-	Sum(j1.amount) AS amount
+	Sum(j1.amount/j1.corpTax) AS amount
 	FROM
 	journal AS j1
   ".(isset($_REQUEST['region'])?"INNER JOIN mapsolarsystems AS systems1 ON j1.argID1 = systems1.solarSystemID":"")."
@@ -285,8 +283,7 @@ FROM
 	SELECT
 	j2.ownerName2 AS ownerName2,
 	j2.ownerID2,
-	j2.corpTax,
-	Sum(j2.amount) AS amount
+	Sum(j2.amount/j2.corpTax) AS amount
 	FROM
 	journal AS j2
 	INNER JOIN agtagents AS agents ON j2.argID1 = agents.agentID
@@ -310,8 +307,7 @@ amount DESC";
       $sql = "SELECT
 j.ownerName2,
 j.ownerID2,
-j.corpTax,
-".($rat?"SUM(rats.amount)":"SUM(j.amount)")." AS amount
+".($rat?"SUM(rats.amount)":"SUM(j.amount/j.corpTax)")." AS amount
 FROM
 journal AS j
 ".($rat?"INNER JOIN rats ON j.id = rats.journal_id":"")."
@@ -330,6 +326,7 @@ amount DESC";
     if(!$rs)
       die($this->db->ErrorMsg());
     $num = 0;
+	$response['sql'] = $sql;
     $response['totalSum'] = 0;
     while($row = $rs->FetchRow())
     {
@@ -347,10 +344,10 @@ amount DESC";
           $num,
           htmlentities($row['ownerName2'], ENT_QUOTES, 'UTF-8'),
           $row['ownerID2'],
-          number_format(($row['amount']/$row['corpTax']), 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
-          $row['amount']/$row['corpTax']
+          number_format($row['amount'], 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
+          $row['amount']
         );
-      $response['totalSum'] += $row['amount']/$row['corpTax'];
+      $response['totalSum'] += $row['amount'];
     }
 
     $response['aaSorting'] = array();
@@ -377,15 +374,13 @@ amount DESC";
     $sql = "SELECT
 j3.characterName,
 j3.characterID,
-j3.corpTax,
 Sum(j3.amount) AS amount
 FROM
 (
 	SELECT
 	j1.ownerName2 AS characterName,
 	j1.ownerID2 AS characterID,
-	j1.corpTax,
-	Sum(j1.amount) AS amount
+	Sum(j1.amount/j1.corpTax) AS amount
 	FROM
 	journal AS j1
 	INNER JOIN mapsolarsystems AS systems1 ON j1.argID1 = systems1.solarSystemID
@@ -400,8 +395,7 @@ FROM
 	SELECT
 	j2.ownerName2 AS characterName,
 	j2.ownerID2 AS characterID,
-	j2.corpTax,
-	Sum(j2.amount) AS amount
+	Sum(j2.amount/j2.corpTax) AS amount
 	FROM
 	journal AS j2
 	INNER JOIN agtagents AS agents ON j2.argID1 = agents.agentID
@@ -429,10 +423,10 @@ amount DESC";
         $num,
         htmlentities($row['characterName'], ENT_QUOTES, 'UTF-8'),
         $row['characterID'],
-        number_format(($row['amount']/$row['corpTax']), 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
-        $row['amount']/$row['corpTax']
+        number_format($row['amount'], 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
+        $row['amount']
       );
-      $response['totalSum'] += $row['amount']/$row['corpTax'];
+      $response['totalSum'] += $row['amount'];
     }
 
     $response['aaSorting'] = array();
@@ -470,7 +464,6 @@ systems.solarSystemID AS systemID,
 systems.security AS security,
 regions.regionName AS regionName,
 systems.regionID AS regionID,
-j.corpTax,
 SUM(rats.amount) AS amount
 FROM
 journal AS j
@@ -494,7 +487,6 @@ j3.systemID,
 j3.security,
 j3.regionName,
 j3.regionID,
-j3.corpTax,
 Sum(j3.amount) AS amount
 FROM
 (
@@ -503,9 +495,8 @@ FROM
 	systems1.solarSystemID AS systemID,
 	systems1.security AS security,
 	regions1.regionName AS regionName,
-  systems1.regionID AS regionID,
-	j1.corpTax,
-	Sum(j1.amount) AS amount
+	systems1.regionID AS regionID,
+	Sum(j1.amount/j1.corpTax) AS amount
 	FROM
 	journal AS j1
 	INNER JOIN mapsolarsystems AS systems1 ON j1.argID1 = systems1.solarSystemID
@@ -525,8 +516,7 @@ FROM
 	systems2.security AS security,
 	regions2.regionName AS regionName,
   systems2.regionID AS regionID,
-	j2.corpTax,
-	Sum(j2.amount) AS amount
+	Sum(j2.amount/j2.corpTax) AS amount
 	FROM
 	journal AS j2
 	INNER JOIN agtagents AS agents ON j2.argID1 = agents.agentID
@@ -576,11 +566,11 @@ amount DESC";
           number_format(round($row['security'], 1), 1),
           htmlentities($row['regionName'], ENT_QUOTES, 'UTF-8'),
           $row['regionID'],
-          number_format(($row['amount']/$row['corpTax']), 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
-          $row['amount']/$row['corpTax'],
+          number_format($row['amount'], 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
+          $row['amount'],
           $securityState
         );
-      $response['totalSum'] += $row['amount']/$row['corpTax'];
+      $response['totalSum'] += $row['amount'];
     }
 
     $response['aaSorting'] = array();
@@ -613,15 +603,13 @@ amount DESC";
     $sql = "SELECT
 j3.regionName,
 j3.regionID,
-j3.corpTax,
 Sum(j3.amount) AS amount
 FROM
 (
 	SELECT
 	systems1.regionID AS regionID,
 	regions1.regionName AS regionName,
-	journal1.corpTax,
-	Sum(journal1.amount) AS amount
+	Sum(journal1.amount/journal1.corpTax) AS amount
 	FROM
 	journal AS journal1
 	INNER JOIN mapsolarsystems AS systems1 ON journal1.argID1 = systems1.solarSystemID
@@ -636,8 +624,7 @@ FROM
 	SELECT
 	systems2.regionID AS regionID,
 	regions2.regionName AS regionName,
-	journal2.corpTax,
-	Sum(journal2.amount) AS amount
+	Sum(journal2.amount/journal2.corpTax) AS amount
 	FROM
 	journal AS journal2
 	INNER JOIN agtagents AS agents2 ON journal2.argID1 = agents2.agentID
@@ -666,10 +653,10 @@ amount DESC";
         $num,
         htmlentities($row['regionName'], ENT_QUOTES, 'UTF-8'),
         $row['regionID'],
-        number_format(($row['amount']/$row['corpTax']), 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
-        $row['amount']/$row['corpTax']
+        number_format($row['amount'], 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
+        $row['amount']
       );
-      $response['totalSum'] += $row['amount']/$row['corpTax'];
+      $response['totalSum'] += $row['amount'];
     }
 
     $response['aaSorting'] = array();
@@ -723,7 +710,6 @@ t.factionName,
 t.factionID,
 t.divisionName,
 t.divisionID,
-t.corpTax,
 SUM(t.missionCount) AS missionCount,
 SUM(t.amount) AS amount
 FROM
@@ -739,9 +725,8 @@ FROM
 	corporations.factionID AS factionID,
 	divisions.divisionName,
 	agents.divisionID AS divisionID,
-	j.corpTax,
 	1 AS missionCount,
-	SUM(j.amount) AS amount
+	SUM(j.amount/j.corpTax) AS amount
 	FROM journal AS j
 	INNER JOIN agtagents AS agents ON j.argID1 = agents.agentID
 	INNER JOIN crpnpccorporations AS corporations ON agents.corporationID = corporations.corporationID
@@ -785,12 +770,12 @@ amount DESC";
         $row['divisionName'],
         $row['divisionID'],
         $row['missionCount'],
-        number_format(($row['amount']/$row['corpTax']), 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
-        $row['amount']/$row['corpTax'],
+        number_format($row['amount'], 0, $this->lang->decimalSeparator, $this->lang->thousandSeparator).' ISK',
+        $row['amount'],
         'L'.$row['level'],
         'Q'.$row['quality']
       );
-      $response['totalSum'] += $row['amount']/$row['corpTax'];
+      $response['totalSum'] += $row['amount'];
     }
 
     $response['aaSorting'] = array();
@@ -1009,14 +994,12 @@ journal.date DESC";
     {
       $sql = "SELECT
 j3.date,
-j3.corpTax,
 Sum(j3.amount) AS amount
 FROM
 (
 	SELECT
 	UNIX_TIMESTAMP".($byHour?"(DATE(j1.date))+HOUR(j1.date)*3600":"(DATE(j1.date))")." AS date,
-  j1.corpTax,
-	Sum(j1.amount) AS amount
+	Sum(j1.amount/j1.corpTax) AS amount
 	FROM
 	journal AS j1
   ".(isset($_REQUEST['region'])?"INNER JOIN mapsolarsystems AS systems1 ON j1.argID1 = systems1.solarSystemID":"")."
@@ -1032,8 +1015,7 @@ FROM
 	UNION	ALL
 	SELECT
 	UNIX_TIMESTAMP".($byHour?"(DATE(j2.date))+HOUR(j2.date)*3600":"(DATE(j2.date))")." AS date,
-  j2.corpTax,
-	Sum(j2.amount) AS amount
+	Sum(j2.amount/j2.corpTax) AS amount
 	FROM
 	journal AS j2
 	INNER JOIN agtagents AS agents ON j2.argID1 = agents.agentID
@@ -1057,8 +1039,7 @@ amount DESC";
     {
       $sql = "SELECT
 UNIX_TIMESTAMP".($byHour?"(DATE(j.date))+HOUR(j.date)*3600":"(DATE(j.date))")." AS date,
-j.corpTax,
-".($rat?"SUM(rats.amount)":"SUM(j.amount)")." AS amount
+".($rat?"SUM(rats.amount)":"SUM(j.amount/j.corpTax)")." AS amount
 FROM
 journal AS j
 ".($rat?"INNER JOIN rats ON j.id = rats.journal_id":"")."
@@ -1079,16 +1060,8 @@ date ASC";
     $response['totalSum'] = 0;
     while($row = $rs->FetchRow())
     {
-      if($rat)
-      {
-        $temp[$row['date']] = $row['amount'];
-        $response['totalSum'] += $row['amount'];
-      }
-      else
-      {
-        $temp[$row['date']] = $row['amount']/$row['corpTax'];
-        $response['totalSum'] += $row['amount']/$row['corpTax'];
-      }
+      $temp[$row['date']] = $row['amount'];
+      $response['totalSum'] += $row['amount'];
     }
 
     $temp2 = array();

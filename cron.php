@@ -66,7 +66,7 @@ class Cron
 
   private function getCorpTax()
   {
-    $url = "https://api.eveonline.com/corp/CorporationSheet.xml.aspx?userID={$this->conf->UserID}&apiKey={$this->conf->ApiKey}&characterID={$this->conf->CharacterID}";
+    $url = "https://api.eveonline.com/corp/CorporationSheet.xml.aspx?keyID={$this->conf->UserID}&vCode={$this->conf->ApiKey}&characterID={$this->conf->CharacterID}";
 
     $contents = false;
     if($this->conf->UseCURL)
@@ -93,7 +93,7 @@ class Cron
 
   private function getApiResponse($fromID = null)
   {
-    $url = "{$this->conf->ApiUrl}?userID={$this->conf->UserID}&apiKey={$this->conf->ApiKey}&characterID={$this->conf->CharacterID}&rowCount={$this->conf->RowCount}";
+    $url = "{$this->conf->ApiUrl}?keyID={$this->conf->UserID}&vCode={$this->conf->ApiKey}&characterID={$this->conf->CharacterID}&rowCount={$this->conf->RowCount}";
     if($fromID !== null)
       $url .= "&fromID=$fromID";
 
