@@ -251,8 +251,8 @@ class Cron
 
     if($data === false)
     {
-      //file_put_contents('cron.log', " Could not fetch data\n", FILE_APPEND);
-      die('Could not fetch data');
+      file_put_contents('cron.log', " Could not fetch data, error no ".curl_errno($ch).": \"".curl_error($ch)."\"\n", FILE_APPEND);
+      die('Could not fetch data, error no '.curl_errno($ch).': "'.curl_error($ch).'"');
     }
 
     return $data;
