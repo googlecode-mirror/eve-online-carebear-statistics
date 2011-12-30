@@ -247,13 +247,14 @@ class Cron
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
 
     $data = curl_exec($ch);
-    curl_close($ch);
 
     if($data === false)
     {
       file_put_contents('cron.log', " Could not fetch data, error no ".curl_errno($ch).": \"".curl_error($ch)."\"\n", FILE_APPEND);
       die('Could not fetch data, error no '.curl_errno($ch).': "'.curl_error($ch).'"');
     }
+	
+    curl_close($ch);
 
     return $data;
   }
