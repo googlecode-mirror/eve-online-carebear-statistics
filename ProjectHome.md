@@ -1,0 +1,1 @@
+Carebearing statistics based on Corporation Wallet Journal with various views.
